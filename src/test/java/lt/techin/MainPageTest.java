@@ -11,8 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MainPageTest extends BasePageTest {
 
@@ -31,7 +30,7 @@ public class MainPageTest extends BasePageTest {
         QAPage qaPage = new QAPage(driver);
         mainPage.selectQAButton();
         qaPage.clickShowItemsInList();
-        assertTrue(qaPage.isButtonListDisplayed());
+        assertTrue(qaPage.isButtonListDisplayed(), "The sorting by list is not enabled.");
     }
 
 
@@ -76,7 +75,7 @@ public class MainPageTest extends BasePageTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(files = "src/main/resources/names2.csv", numLinesToSkip = 1)
+    @CsvFileSource(files = "src/main/resources/names.csv", numLinesToSkip = 1)
     void clickTheButtonAddToCart(String name) {
         MainPage mainPage = new MainPage(driver);
         QAPage qaPage = new QAPage(driver);
@@ -87,18 +86,42 @@ public class MainPageTest extends BasePageTest {
         qaPage.clickTheItemDescription(name);
         itemPage.addQty(index);
         itemPage.clickTheAddToCartButton();
-        String messageText = itemPage.infoMessage.getText();
+        String messageText = itemPage.messageText();
         Assertions.assertEquals("Success: You have added " + name + " to your shopping cart!", messageText);
         Assertions.assertEquals(index, itemPage.cartButtonTextQtyValue(), "The Qty amount do not match.");
         itemPage.cartButtonView();
         Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(d -> itemPage.nameOfItemInCart.isDisplayed());
-        Assertions.assertEquals(name, itemPage.nameOfItemInCart.getText());
-        Assertions.assertEquals(index, itemPage.qtyInCartNumber());
+        Assertions.assertEquals(name, itemPage.nameOfItemInCartText(), "The name of the product do not match with the name added.");
+        Assertions.assertEquals(index, itemPage.qtyInCartNumber(), "The Qty do not match.");
         System.out.println(itemPage.priceInTheCartPage());
         double calculatedPrice = (double) index * (itemPage.priceOfTheItem());
-        Assertions.assertEquals(calculatedPrice, itemPage.priceInTheCartPage());
+        Assertions.assertEquals(calculatedPrice, itemPage.priceInTheCartPage(), 0.01, "The prices do not match.");
     }
 
-    
+//    BONUS
+
+    @Test
+    void searchForWord() {
+        MainPage mainPage = new MainPage(driver);
+        SearchPage searchPage = new SearchPage(driver);
+        mainPage.selectQAButton();
+        mainPage.inputNameInSearchBar("Duck");
+        mainPage.clickTheButtonSearch();
+        assertTrue(searchPage.searchResults("Duck"), "There is an Item not matching the search");
+    }
+
+    @Test
+    void addAllProductsToTheCart() {
+        MainPage mainPage = new MainPage(driver);
+        ItemPage itemPage = new ItemPage(driver);
+        QAPage qaPage = new QAPage(driver);
+        mainPage.selectQAButton();
+        qaPage.addingAllProductsToCartPrimitive();
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(d -> qaPage.cartButton.isDisplayed());
+        assertEquals("4", itemPage.checkTheQtyOfItemAdded(), "The quantity of Item was not added.");
+
+    }
+
 }

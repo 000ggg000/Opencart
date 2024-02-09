@@ -11,6 +11,12 @@ public class MainPage extends BasePage {
 @FindBy(xpath = "//a[text()='QA']")
     WebElement buttonQASelect;
 
+@FindBy(xpath = "//input[@name='search']")
+WebElement inputSearch;
+
+@FindBy(css = ".fa-magnifying-glass")
+WebElement searchButton;
+
 
 
 
@@ -25,6 +31,14 @@ public class MainPage extends BasePage {
 
 public void selectQAButton(){
         buttonQASelect.click();
+}
+
+public void inputNameInSearchBar(String word){
+        inputSearch.sendKeys(word);
+}
+
+public void clickTheButtonSearch(){
+        searchButton.click();
 }
 
 }

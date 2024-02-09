@@ -94,4 +94,12 @@ public class ItemPage extends BasePage{
     public double priceOfTheItem(){
         return parseDouble(priceOfItem.getText().replaceAll("\\$", ""));
     }
+
+    public String messageText() {
+        return infoMessage.getText();
+    }
+
+    public String nameOfItemInCartText() {
+        return nameOfItemInCart.getText();
+    }
 }
